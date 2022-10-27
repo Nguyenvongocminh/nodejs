@@ -1,32 +1,27 @@
+const { request } = require("express");
 const Products = require("../models/products");
-
+const ProductValidation = require("../helpers/validation");
 // CRUD
 // CREATE - POST
-const createProduct = (req, res, next) => {
+const createProduct = async (req, res, next) => {
   try {
-    const { productName, productBrand, type, price, quantity, images } =
-      req.body;
-    if (
-      !productName ||
-      !productBrand ||
-      !type ||
-      !price ||
-      !quantity ||
-      !images
-    ) {
-      res.status(400).json({
-        statusCode: 400,
-        message: "Some fields are not empty.",
-      });
-    }
-    let product = new Products(req.body);
-    product.save().then((response) => {
+    const validReq = await ProductValidation.checkAddProduct.validateAsync(
+      req.body
+    );
+    //let product = new Products(req.body)
+    let product = new Products(validReq);
+    product.save().then((reesponse) => {
       res.json({
-        message: "Added product successfully!",
+        massage: "Added product successfully",
       });
     });
   } catch (error) {
-    console.log(error);
+    console.log("ERRORS:", error);
+    return res.status(400).json({
+      statusCode: 400,
+      message: "Bad request.",
+      errormessage: error.details[0].message,
+    });
   }
 };
 
@@ -81,6 +76,7 @@ const getProductById = async (req, res, next) => {
 //delete product by id
 const deleteProductById = async (req, res, next) => {
   const productId = req.params.productId;
+
   try {
     const product = await Products.findByIdAndRemove(productId);
     if (product) {
@@ -105,9 +101,10 @@ const deleteProductById = async (req, res, next) => {
 const editProduct = (req, res, next) => {
   try {
     let productId = req.params.productId;
-    if (!req.body) {
+    const isBodyEmpty = Object.keys(req.body).length;
+    if (isBodyEmpty === 0) {
       return res.send({
-        statuscode: 404,
+        statuscode: 403,
         message: "Body request can not emty.",
       });
     }
