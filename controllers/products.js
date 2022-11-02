@@ -41,7 +41,7 @@ const getAllProducts = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.log("erorr", erorr);
+    console.log("error", error);
     res.status(400).json({
       message: "Bad request",
     });
@@ -66,7 +66,7 @@ const getProductById = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.log("erorr", erorr);
+    console.log("error", error);
     res.status(400).json({
       message: "Bad request",
     });
@@ -91,7 +91,7 @@ const deleteProductById = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.log("erorr", erorr);
+    console.log("error", error);
     res.status(400).json({
       message: "Bad request",
     });

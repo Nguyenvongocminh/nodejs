@@ -1,3 +1,4 @@
+const { string } = require("joi");
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
@@ -7,7 +8,7 @@ const usersSchema = new Schema(
       type: String,
       require: true,
     },
-    pasword: {
+    password: {
       type: String,
       require: true,
     },
@@ -20,11 +21,11 @@ const usersSchema = new Schema(
       require: true,
     },
     phone: {
-      type: Number,
+      type: String,
       require: true,
     },
     email: {
-      type: Number,
+      type: String,
       require: false,
     },
     address: {
@@ -35,8 +36,12 @@ const usersSchema = new Schema(
       type: String,
       require: false,
     },
+    isAdmin: {
+      type: Boolean,
+      require: true,
+    },
   },
   { timestamps: true }
 );
-const Products = mongoose.model("users", usersSchema);
-module.exports = Products;
+const Users = mongoose.model("users", usersSchema);
+module.exports = Users;
