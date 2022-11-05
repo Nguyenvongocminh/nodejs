@@ -12,11 +12,11 @@ const usersSchema = new Schema(
       type: String,
       require: true,
     },
-    firstname: {
+    firstName: {
       type: String,
-      require: false,
+      require: true,
     },
-    lastname: {
+    lastName: {
       type: String,
       require: true,
     },
