@@ -100,9 +100,9 @@ const deleteProductById = async (req, res, next) => {
 
 const editProduct = (req, res, next) => {
   try {
-    let productId = req.params.productId;
-    const isBodyEmpty = Object.keys(req.body).length;
-    if (isBodyEmpty === 0) {
+    const productId = req.params.productId;
+    const isBodyEmpTy = Object.keys(req.body).length;
+    if (isBodyEmpTy === 0) {
       return res.send({
         statuscode: 403,
         message: "Body request can not emty.",

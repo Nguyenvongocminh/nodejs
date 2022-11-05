@@ -23,13 +23,13 @@ const addUser = async (req, res, next) => {
       const newUser = await Users.create({
         username: req.body.username,
         password: hashedPassword,
-        fistName: req.body.fistName,
+        firstName: req.body.firstName,
         lastName: req.body.lastName,
         phone: req.body.phone,
         email: req.body.email,
         address: req.body.address,
         avatar: req.body.avatar,
-        role: req.body.role,
+        isAdmin: req.body.isAdmin,
       });
       if (newUser) {
         return res
@@ -163,9 +163,9 @@ const deleteUserById = async (req, res, next) => {
 
 const editUser = (req, res, next) => {
   try {
-    let userId = req.params.userID;
-    const isBodyEmpty = Object.keys(req.body).length;
-    if (isBodyEmpty === 0) {
+    const userId = req.params.userId;
+    const isBodyEmpTy = Object.keys(req.body).length;
+    if (isBodyEmpTy === 0) {
       return res.send({
         statuscode: 403,
         message: "Body request can not emty.",
@@ -175,7 +175,7 @@ const editUser = (req, res, next) => {
       if (data) {
         res.status(200).json({
           statuscode: 200,
-          message: "Update product successfully",
+          message: "Update user successfully",
         });
       } else {
         res.json({
