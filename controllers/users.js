@@ -3,10 +3,12 @@ const { request } = require("express");
 const userValidation = require("../helpers/validation");
 const errorFunction = require("../utils/errorFunction");
 const securePassword = require("../utils/securePassword");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 // CRUD
 // CREATE - POST
-const addUser = async (req, res, next) => {
+const register = async (req, res, next) => {
   try {
     const existingEmail = await Users.findOne({
       email: req.body.email,
@@ -46,6 +48,58 @@ const addUser = async (req, res, next) => {
       error,
       statusCode: 400,
     });
+  }
+};
+
+const login = (req, res, next) => {
+  try {
+    var username = req.body.username;
+    var password = req.body.password;
+    // username = 'admin'
+    Users.findOne({ username: username }).then(
+      // Users.findOne({ $or: [{ email: username }, { phone: username }] }).then(
+      (user) => {
+        if (user) {
+          bcrypt.compare(password, user.password, function (err, result) {
+            if (err) {
+              res.json(errorFunction(true, 400, "Bad Request"));
+            }
+            if (result) {
+              let access_token = jwt.sign(
+                {
+                  username: user.username,
+                  firstName: user.firstName,
+                  lastName: user.lastName,
+                  isAdmin: user.isAdmin,
+                },
+                "secretValue",
+                {
+                  expiresIn: "1h",
+                }
+              );
+              res.json({
+                message: "Login Successfully!",
+                access_token,
+                userId: user._id,
+                username: user.username,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                isAdmin: user.isAdmin,
+                phone: user.phone,
+                address: user.address,
+                avatar: user.avatar,
+              });
+            } else {
+              res.json(errorFunction(true, 400, "Password does not matched!"));
+            }
+          });
+        } else {
+          res.json(errorFunction(true, 400, "No user found!"));
+        }
+      }
+    );
+  } catch (error) {
+    res.json(errorFunction(true, 400, "Bad Request"));
   }
 };
 
@@ -215,7 +269,8 @@ const editUser = (req, res, next) => {
 // };
 
 module.exports = {
-  addUser,
+  register,
+  login,
   createUser,
   getAllUsers,
   deleteUserById,
