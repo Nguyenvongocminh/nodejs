@@ -17,7 +17,8 @@ const userValidation = require("../helpers/userValidation");
 const UsersController = require("../controllers/users");
 // app.use(cors({ origin: '*', credentials: true }))
 app.use(allowCrossDomain);
-route.post("/api/auths/register", userValidation, UsersController.addUser);
+route.post("/api/auths/register", userValidation, UsersController.register);
+route.post("/api/users/login", UsersController.login);
 
 // route.post("/api/users/create", UsersController.createUser);
 route.get("/api/users/getAllUsers", UsersController.getAllUsers);
