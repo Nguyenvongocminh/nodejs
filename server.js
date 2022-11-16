@@ -5,9 +5,9 @@ const ProductsRoute = require("./routes/products");
 const bodyParser = require("body-parser");
 const UsersRoute = require("./routes/users");
 const test = process.env.TEST;
-
+const OrdersRoute = require("./routes/orders");
 const connection_string = process.env.CONNECTION_STRING;
-
+const CartsRoute = require("./routes/carts");
 mongoose.connect(connection_string, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -33,5 +33,4 @@ database.once("connected", () => {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use("", ProductsRoute);
-app.use("", UsersRoute);
+app.use("", ProductsRoute, UsersRoute, OrdersRoute, CartsRoute);
