@@ -8,6 +8,11 @@ const orderValidation = require("../helpers/orderValidation");
 // app.use(cors({ origin: '*', credentials: true }))
 app.use(allowCrossDomain);
 route.post("/api/orders/create", orderValidation, OrdersController.createOrder);
+route.post(
+  "/api/orders/addOrderProduct",
+  orderValidation,
+  OrdersController.addOrderProduct
+);
 
 // route.post("/api/users/create", UsersController.createUser);
 route.get("/api/orders/getAllOrders", OrdersController.getAllOrders);

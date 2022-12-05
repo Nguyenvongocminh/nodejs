@@ -2,23 +2,55 @@ const { request } = require("express");
 const Comments = require("../models/comments");
 const commentValidation = require("../helpers/commentValidation");
 const errorFunction = require("../utils/errorFunction");
+const Products = require("../controllers/products");
+const Users = require("../controllers/users");
+
+// const createComment = async (req, res, next) => {
+//   try {
+//     const newComment = await Comments.create(req.body);
+
+//     if (newComment) {
+//       return res
+//         .status(201)
+//         .json(errorFunction(false, 201, "Comment Created", newComment));
+//     } else {
+//       return res
+//         .status(403)
+//         .json(errorFunction(true, "Error Creating Comment"));
+//     }
+//   } catch (error) {
+//     console.log("ERRORS:", error);
+//     return res.status(403).json(errorFunction(true, "Error Creating Comment"));
+//   }
+// };
 
 const createComment = async (req, res, next) => {
+  const user = await Users.findById(req.body.userId);
+  const product = await Products.findById(req.body.productId);
   try {
-    const newComment = await Comments.create(req.body);
-
-    if (newComment) {
-      return res
-        .status(201)
-        .json(errorFunction(false, 201, "Comment Created", newComment));
+    if (!user) {
+      return res.json(
+        errorFunction(true, 204, "This user Id have not in the database")
+      );
+    }
+    if (!product) {
+      return res.json(
+        errorFunction(true, 204, "This product Id have not in the database")
+      );
     } else {
-      return res
-        .status(403)
-        .json(errorFunction(true, "Error Creating Comment"));
+      const newComment = await Comments.create(req.body);
+
+      if (newComment) {
+        return res
+          .status(201)
+          .json(errorFunction(false, 201, "Comment Created", newComment));
+      } else {
+        return res.status(403).json(errorFunction(true, "Error Creating Cart"));
+      }
     }
   } catch (error) {
     console.log("ERRORS:", error);
-    return res.status(403).json(errorFunction(true, "Error Creating Comment"));
+    return res.status(403).json(errorFunction(true, "Error Creating Cart"));
   }
 };
 

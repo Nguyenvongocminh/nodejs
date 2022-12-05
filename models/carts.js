@@ -15,7 +15,10 @@ const cartsSchema = new Schema(
       type: String,
       require: true,
     },
-
+    type: {
+      type: String,
+      require: false,
+    },
     userId: {
       type: String,
       require: true,

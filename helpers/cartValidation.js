@@ -8,6 +8,8 @@ const validation = joi.object({
   userId: joi.string().min(2).max(100).required(),
   price: joi.number().required(),
   images: joi.string().allow(""),
+  type: joi.string().required(),
+  quantity: joi.number().required(),
 });
 
 const cartValidation = async (req, res, next) => {
