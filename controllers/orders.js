@@ -4,31 +4,99 @@ const OrdersValidation = require("../helpers/orderValidation");
 const errorFunction = require("../utils/errorFunction");
 
 const createOrder = async (req, res, next) => {
+  const user = await Users.findById(req.body.userId);
+  const product = await Products.findById(req.body.productId);
   try {
-    // const productId = await Products.findById(req.body.productId);
-    // const userId = await Users.findById(req.body.userId);
-    // if (!productId) {
-    //   return res.json(
-    //     errorFunction(true, 204, "This product Id have not in the database")
-    //   );
-    // }
-    // if (!userId) {
-    //   return res.json(
-    //     errorFunction(true, 204, "This user Id have not in the database")
-    //   );
-    // }
-    const newOrder = await Orders.create(req.body);
-
-    if (newOrder) {
-      return res
-        .status(201)
-        .json(errorFunction(false, 201, "Order Created", newOrder));
+    if (!user) {
+      return res.json(
+        errorFunction(true, 204, "This user Id have not in the database")
+      );
+    }
+    if (!product) {
+      return res.json(
+        errorFunction(true, 204, "This product Id have not in the database")
+      );
     } else {
-      return res.status(403).json(errorFunction(true, "Error Creating Order"));
+      const newOrder = await Orders.create(req.body);
+
+      if (newOrder) {
+        return res
+          .status(201)
+          .json(errorFunction(false, 201, "Order Created", newOrder));
+      } else {
+        return res
+          .status(403)
+          .json(errorFunction(true, "Error Creating Order"));
+      }
     }
   } catch (error) {
     console.log("ERRORS:", error);
     return res.status(403).json(errorFunction(true, "Error Creating Order"));
+  }
+};
+////
+const addOrderProduct = async (req, res, next) => {
+  //get userId fron body request
+  //get user by userId and check in DB
+  //IF-ELSE
+  //get productId from body request
+  //get product by productId and check in DB
+  //IF-ELSE
+  //IF product >= check quantity of this product (10)
+  //IF quantity of body request (2) >= quantity of this product in stock => OK
+  //UPDATE quantity of product in stock(😎
+  //ELSE => show message
+
+  try {
+    const quantity = req.body.quantity;
+    const user = await Users.findById(req.body.userId);
+    const product = await Products.findById(req.body.productId);
+    const requestProduct = { quantity: product.quantity - quantity };
+    if (!user) {
+      return res.json(
+        errorFunction(true, 204, "This user Id have not in the database")
+      );
+    }
+    if (!product) {
+      return res.json(
+        errorFunction(true, 204, "This product Id have not in the database")
+      );
+    } else {
+      if (quantity <= product.quantity) {
+        //Mua
+        const newOrder = await Orders.create(req.body);
+        if (newOrder) {
+          //UPDATE PRODUCT
+          Products.findByIdAndUpdate(req.body.productId, requestProduct).then(
+            (data) => {
+              if (data) {
+                res.status(201);
+                return res.json(
+                  errorFunction(false, 201, "Order Create", newOrder)
+                );
+              } else {
+                return res.json(errorFunction(true, 400, "Bad request"));
+              }
+            }
+          );
+        } else {
+          res.status(403);
+          return res.json(errorFunction(true, 403, "Error Creating Order"));
+        }
+      } else {
+        //Show Message
+        return res.json(
+          errorFunction(
+            true,
+            206,
+            "The quantity is greater than quantity in the stock"
+          )
+        );
+      }
+    }
+  } catch (error) {
+    res.status(400);
+    return res.json(errorFunction(true, 400, "Bad request"));
   }
 };
 
@@ -209,4 +277,5 @@ module.exports = {
   deleteOrderById,
   editOrder,
   getOrderById,
+  addOrderProduct,
 };

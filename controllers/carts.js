@@ -2,35 +2,37 @@ const { request } = require("express");
 const Carts = require("../models/carts");
 const CartsValidation = require("../helpers/cartValidation");
 const errorFunction = require("../utils/errorFunction");
+const Products = require("../controllers/products");
+const Users = require("../controllers/users");
 // CRUD
 // CREATE - POST
 const createCart = async (req, res, next) => {
+  const user = await Users.findById(req.body.userId);
+  const product = await Products.findById(req.body.productId);
   try {
-    const newCart = await Carts.create(req.body);
-    // const validReq = await OrdersValidation.checkAddOrder.validateAsync(
-    //   req.body
-    // );
-    // let order = new Orders(validReq);
-    if (newCart) {
-      return res
-        .status(201)
-        .json(errorFunction(false, 201, "Cart Created", newCart));
-    } else {
-      return res.status(403).json(errorFunction(true, "Error Creating Cart"));
+    if (!user) {
+      return res.json(
+        errorFunction(true, 204, "This user Id have not in the database")
+      );
     }
-    // newOrder.save().then((reesponse) => {
-    //   res.json({
-    //     massage: "Added product successfully",
-    //   });
-    // });
+    if (!product) {
+      return res.json(
+        errorFunction(true, 204, "This product Id have not in the database")
+      );
+    } else {
+      const newCart = await Carts.create(req.body);
+
+      if (newCart) {
+        return res
+          .status(201)
+          .json(errorFunction(false, 201, "Cart Created", newCart));
+      } else {
+        return res.status(403).json(errorFunction(true, "Error Creating Cart"));
+      }
+    }
   } catch (error) {
     console.log("ERRORS:", error);
     return res.status(403).json(errorFunction(true, "Error Creating Cart"));
-    // return res.status(400).json({
-    //   statusCode: 400,
-    //   message: "Bad request.",
-    //   errormessage: error.details[0].message,
-    // });
   }
 };
 
