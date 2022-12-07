@@ -22,5 +22,9 @@ route.delete(
   OrdersController.deleteOrderById
 );
 route.patch("/api/orders/editOrderById/:orderId", OrdersController.editOrder);
+route.delete(
+  "/api/order/addMultipleOrders/:orderId",
+  OrdersController.addMultipleOrders
+);
 
 module.exports = route;

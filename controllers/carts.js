@@ -2,8 +2,8 @@ const { request } = require("express");
 const Carts = require("../models/carts");
 const CartsValidation = require("../helpers/cartValidation");
 const errorFunction = require("../utils/errorFunction");
-const Products = require("../controllers/products");
-const Users = require("../controllers/users");
+const Products = require("../models/products");
+const Users = require("../models/users");
 // CRUD
 // CREATE - POST
 const createCart = async (req, res, next) => {

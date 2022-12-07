@@ -2,6 +2,9 @@ const { request } = require("express");
 const Orders = require("../models/orders");
 const OrdersValidation = require("../helpers/orderValidation");
 const errorFunction = require("../utils/errorFunction");
+const Carts = require("../models/carts");
+const Products = require("../models/products");
+const Users = require("../models/users");
 
 const createOrder = async (req, res, next) => {
   const user = await Users.findById(req.body.userId);
@@ -44,7 +47,7 @@ const addOrderProduct = async (req, res, next) => {
   //IF-ELSE
   //IF product >= check quantity of this product (10)
   //IF quantity of body request (2) >= quantity of this product in stock => OK
-  //UPDATE quantity of product in stock(😎
+  //UPDATE quantity of product in stock(
   //ELSE => show message
 
   try {
@@ -52,6 +55,12 @@ const addOrderProduct = async (req, res, next) => {
     const user = await Users.findById(req.body.userId);
     const product = await Products.findById(req.body.productId);
     const requestProduct = { quantity: product.quantity - quantity };
+    //CHECK Í THÍ PRODUCT FROM CART?
+    console.log("avv", req.body);
+    const isProductFromCart = req.body?.cartId;
+    const cartId = req.body?.cartId;
+    delete req.body?.cartId;
+
     if (!user) {
       return res.json(
         errorFunction(true, 204, "This user Id have not in the database")
@@ -63,8 +72,10 @@ const addOrderProduct = async (req, res, next) => {
       );
     } else {
       if (quantity <= product.quantity) {
+        // console.log(quantity <= product.quantity);
         //Mua
         const newOrder = await Orders.create(req.body);
+        // console.log("newOder: ", newOrder);
         if (newOrder) {
           //UPDATE PRODUCT
           Products.findByIdAndUpdate(req.body.productId, requestProduct).then(
@@ -79,6 +90,11 @@ const addOrderProduct = async (req, res, next) => {
               }
             }
           );
+          //remove product in cart
+          if (isProductFromCart) {
+            console.log("abc", cartId);
+            await deleteProductByIdInCart(cartId);
+          }
         } else {
           res.status(403);
           return res.json(errorFunction(true, 403, "Error Creating Order"));
@@ -94,6 +110,28 @@ const addOrderProduct = async (req, res, next) => {
         );
       }
     }
+  } catch (error) {
+    res.status(400);
+    return res.json(errorFunction(true, 400, "Bad request"));
+  }
+};
+
+const addMultipleOrders = async (req, res, next) => {
+  try {
+    const items = req.body.map((item) => new Orders(item));
+    Promise.all(
+      items.map((item) => {
+        if (item?.cartId) {
+          deleteProductByIdInCart(item?.cartId);
+          //Carts.findByIdAndRemove(item?.cartId)
+        }
+        item.save();
+        //Orders.create(item)
+      })
+    ).then((result) => {
+      res.status(201);
+      return res.json(errorFunction(true, 400, "Bad request"));
+    });
   } catch (error) {
     res.status(400);
     return res.json(errorFunction(true, 400, "Bad request"));
@@ -265,6 +303,14 @@ const addOrder = async (req, res, next) => {
     });
   }
 };
+const deleteProductByIdInCart = async (cartId) => {
+  try {
+    await Carts.findByIdAndRemove(cartId);
+  } catch (error) {
+    console.log("ERR");
+    return null;
+  }
+};
 
 // READ - GET || POST
 // UPDATE - PUT || PATCH
@@ -275,7 +321,9 @@ module.exports = {
   getAllOrders,
   getAllOrders,
   deleteOrderById,
+  addMultipleOrders,
   editOrder,
   getOrderById,
   addOrderProduct,
+  deleteProductByIdInCart,
 };
