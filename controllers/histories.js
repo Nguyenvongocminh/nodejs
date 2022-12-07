@@ -1,27 +1,26 @@
 const { request } = require("express");
-const Comments = require("../models/comments");
-const commentValidation = require("../helpers/commentValidation");
+const Histories = require("../models/histories");
+const historieValidation = require("../helpers/historieValidation");
 const errorFunction = require("../utils/errorFunction");
-const Carts = require("../models/carts");
 const Products = require("../models/products");
 const Users = require("../models/users");
 
-const createComment = async (req, res, next) => {
+const createHistorie = async (req, res, next) => {
   try {
-    const newComment = await Comments.create(req.body);
+    const newHistorie = await Historie.create(req.body);
 
-    if (newComment) {
+    if (newHistorie) {
       return res
         .status(201)
-        .json(errorFunction(false, 201, "Comment Created", newComment));
+        .json(errorFunction(false, 201, "Historie Created", newHistorie));
     } else {
       return res
         .status(403)
-        .json(errorFunction(true, "Error Creating Comment"));
+        .json(errorFunction(true, "Error Creating Historie"));
     }
   } catch (error) {
     console.log("ERRORS:", error);
-    return res.status(403).json(errorFunction(true, "Error Creating Comment"));
+    return res.status(403).json(errorFunction(true, "Error Creating Historie"));
   }
 };
 
@@ -55,7 +54,7 @@ const createComment = async (req, res, next) => {
 //   }
 // };
 
-const getAllComments = async (req, res, next) => {
+const getAllHistories = async (req, res, next) => {
   try {
     const {
       pageSize = 12,
@@ -81,12 +80,12 @@ const getAllComments = async (req, res, next) => {
         },
       ],
     };
-    const filterComments = await Comments.find(filter)
+    const filterHistories = await Histories.find(filter)
       .sort(`${orderByDirection === "asc" ? "" : "-"}${orderByColumn}`)
       .limit(pageSize * 1)
       .skip((pageNumber - 1) * pageSize);
 
-    const allComments = await Comments.find(filter);
+    const allHistories = await Histories.find(filter);
 
     let totalPage = 0;
     if (allComments.length % pageSize === 0) {
@@ -95,14 +94,14 @@ const getAllComments = async (req, res, next) => {
       totalPage = parseInt(allComments.length / pageSize) + 1;
     }
 
-    if (allComments.length > 0) {
+    if (allHistories.length > 0) {
       res.status(200).json({
         totalPage: totalPage,
         totalComments: allCComments.length,
         orders:
           orderByDirection && orderByColumn
-            ? filterCarts
-            : filterCarts.reverse(),
+            ? filterHistories
+            : filterHistories.reverse(),
       });
     } else {
       res.status(200).json({
@@ -119,19 +118,19 @@ const getAllComments = async (req, res, next) => {
 };
 
 //get by id
-const getCommentById = async (req, res, next) => {
-  const CommentId = req.params.CommentId;
+const getHistorieById = async (req, res, next) => {
+  const HistorieId = req.params.CommentId;
   try {
-    const comment = await Comments.findById(CommentId);
+    const historie = await Histories.findById(HistorieId);
     if (order) {
       res.status(200).json({
         statusCode: 200,
-        comment,
+        historie,
       });
     } else {
       res.json({
         statusCode: 204,
-        massage: "This  comments Id have not in the database",
+        massage: "This  Histories Id have not in the database",
         carts: {},
       });
     }
@@ -144,20 +143,20 @@ const getCommentById = async (req, res, next) => {
 };
 
 //delete product by id
-const deleteCommentById = async (req, res, next) => {
-  const commentId = req.params.commentId;
+const deleteHistorieById = async (req, res, next) => {
+  const historieId = req.params.historieId;
 
   try {
-    const comment = await Comments.findByIdAndRemove(commentId);
+    const historie = await Histories.findByIdAndRemove(historieId);
     if (cart) {
       res.status(200).json({
         statusCode: 200,
-        massage: "Delete comment successfully",
+        massage: "Delete Historie successfully",
       });
     } else {
       res.json({
         statusCode: 204,
-        massage: "This  comment Id have not in the database",
+        massage: "This  Historie Id have not in the database",
       });
     }
   } catch (error) {
@@ -168,9 +167,9 @@ const deleteCommentById = async (req, res, next) => {
   }
 };
 
-const editComment = (req, res, next) => {
+const editHistorie = (req, res, next) => {
   try {
-    const commentId = req.params.commentId;
+    const historieId = req.params.historieId;
     const isBodyEmpTy = Object.keys(req.body).length;
     if (isBodyEmpTy === 0) {
       return res.send({
@@ -178,16 +177,16 @@ const editComment = (req, res, next) => {
         message: "Body request can not emty.",
       });
     }
-    Comments.findByIdAndUpdate(commentId, req.body).then((data) => {
+    Histories.findByIdAndUpdate(historieId, req.body).then((data) => {
       if (data) {
         res.status(200).json({
           statuscode: 200,
-          message: "Update comment successfully",
+          message: "Update Historie successfully",
         });
       } else {
         res.json({
           statuscode: 204,
-          message: "This comment Id is have not in the database ",
+          message: "This Historie Id is have not in the database ",
         });
       }
     });
@@ -199,14 +198,14 @@ const editComment = (req, res, next) => {
   }
 };
 
-const addComment = async (req, res, next) => {
+const addHistorie = async (req, res, next) => {
   try {
     const result = await addCommentSchema.validateAsync(req.body);
     // let product = new Products(req.body);
-    let Comment = new Comments(result);
+    let Historie = new Histories(result);
     order.save().then((response) => {
       res.json({
-        message: "Added Comment Successfully!",
+        message: "Added Historie Successfully!",
       });
     });
   } catch (error) {
@@ -222,10 +221,10 @@ const addComment = async (req, res, next) => {
 // DELETE - DELETE
 
 module.exports = {
-  createComment,
-  getAllComments,
-  getAllComments,
-  deleteCommentById,
-  editComment,
-  getCommentById,
+  createHistorie,
+  getAllHistories,
+  getAllHistories,
+  deleteHistorieById,
+  editHistorie,
+  getHistorieById,
 };

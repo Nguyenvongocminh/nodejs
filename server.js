@@ -9,6 +9,7 @@ const OrdersRoute = require("./routes/orders");
 const connection_string = process.env.CONNECTION_STRING;
 const CartsRoute = require("./routes/carts");
 const CommentsRoute = require("./routes/comments");
+const HistoriesRoute = require("./routes/histories");
 mongoose.connect(connection_string, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -34,4 +35,12 @@ database.once("connected", () => {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use("", ProductsRoute, UsersRoute, OrdersRoute, CartsRoute, CommentsRoute);
+app.use(
+  "",
+  ProductsRoute,
+  UsersRoute,
+  OrdersRoute,
+  CartsRoute,
+  CommentsRoute,
+  HistoriesRoute
+);
