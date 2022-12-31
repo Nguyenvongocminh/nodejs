@@ -17,5 +17,9 @@ route.delete(
   CartsController.deleteCartById
 );
 route.patch("/api/carts/editCartById/:cartId", CartsController.editCart);
+route.delete(
+  "/api/carts/deleteMultipleCarts",
+  CartsController.deleteMultipleCarts
+);
 
 module.exports = route;

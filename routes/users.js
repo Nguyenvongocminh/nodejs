@@ -28,5 +28,7 @@ route.delete(
   UsersController.deleteUserById
 );
 route.patch("/api/users/editUserById/:userId", UsersController.editUser);
+route.post("/api/users/changePassword", UsersController.changePassword);
+route.post("/api/users/forgotPassword", UsersController.forgotPassword);
 
 module.exports = route;

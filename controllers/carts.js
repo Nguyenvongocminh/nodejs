@@ -1,4 +1,4 @@
-const { request } = require("express");
+const { request, response } = require("express");
 const Carts = require("../models/carts");
 const CartsValidation = require("../helpers/cartValidation");
 const errorFunction = require("../utils/errorFunction");
@@ -201,6 +201,27 @@ const addCart = async (req, res, next) => {
     });
   }
 };
+const deleteMultipleCarts = async (req, res, next) => {
+  const ListProductsId = req.body;
+  try {
+    Promise.all(
+      ListProductsId.map((productId) => Carts.findByIdAndRemove(productId))
+    )
+      .then((response) => {
+        res.status(200);
+        return res.json(
+          errorFunction(false, 200, "Deleted Products in card Successfully!")
+        );
+      })
+      .catch((error) => {
+        res.status(400);
+        return res.json(errorFunction(true, 400, "Bad Request"));
+      });
+  } catch (error) {
+    res.status(400);
+    return res.json(errorFunction(true, 400, "Bad Requset"));
+  }
+};
 
 // READ - GET || POST
 // UPDATE - PUT || PATCH
@@ -213,4 +234,5 @@ module.exports = {
   deleteCartById,
   editCart,
   getCartById,
+  deleteMultipleCarts,
 };
