@@ -123,18 +123,32 @@ const addMultipleOrders = async (req, res, next) => {
       items.map((item) => {
         if (item?.cartId) {
           deleteProductByIdInCart(item?.cartId);
-          //Carts.findByIdAndRemove(item?.cartId)
+          // Carts.findByIdAndRemove(item?.cartId)
         }
         item.save();
-        //Orders.create(item)
       })
-    ).then((result) => {
-      res.status(201);
-      return res.json(errorFunction(true, 400, "Bad request"));
-    });
+    )
+      .then((result) => {
+        res.status(201);
+        return res.json(errorFunction(false, 201, "Orders Create"));
+      })
+      .catch((error) => {
+        res.status(400);
+        return res.json(errorFunction(true, 400, "Bad request"));
+      });
   } catch (error) {
     res.status(400);
     return res.json(errorFunction(true, 400, "Bad request"));
+  }
+};
+
+const deleteMultipleOrders = async (req, res, next) => {
+  try {
+  } catch (error) {
+    res.status(400).json({
+      statusCode: 400,
+      message: "Bad request",
+    });
   }
 };
 
@@ -312,6 +326,27 @@ const deleteProductByIdInCart = async (cartId) => {
   }
 };
 
+// const deleteMultipleCarts = async (req, res, next) => {
+//   const ListProductsId = req.body;
+//   try {
+//     Promise.all(
+//       ListProductsId.map((productId) => Carts.findByIdAndRemove(productId))
+//     )
+//       .then((response) => {
+//         res.status(200);
+//         return res.json(
+//           errorFunction(false, 200, "Deleted Products in card Successfully!")
+//         );
+//       })
+//       .catch((error) => {
+//         res.status(400);
+//         return res.json(errorFunction(true, 400, "Bad Request"));
+//       });
+//   } catch (error) {
+//     res.status(400);
+//     return res.json(errorFunction(true, 400, "Bad Requset"));
+//   }
+// };
 // READ - GET || POST
 // UPDATE - PUT || PATCH
 // DELETE - DELETE

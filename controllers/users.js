@@ -5,6 +5,7 @@ const errorFunction = require("../utils/errorFunction");
 const securePassword = require("../utils/securePassword");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 
 // CRUD
 // CREATE - POST
@@ -267,6 +268,123 @@ const editUser = (req, res, next) => {
 //     });
 //   }
 // };
+const changePassword = async (req, res) => {
+  //body request
+  // userId - oldPassword - newPassword
+  try {
+    const userId = req.body.userId;
+    const existingUser = await Users.findById(userId);
+    //get user success
+    if (!existingUser) {
+      res.statusCode(403);
+      return res.json(errorFunction(true, 403, "User is not exists"));
+    } else {
+      //compare oldPassword vs hashPassword in DB
+      const encryptPassword = await bcrypt.compareSync(
+        req.body.oldPassword,
+        existingUser.password
+      );
+      if (encryptPassword) {
+        //hash new password
+        const hashedPassword = await securePassword(req.body.newPassword);
+        //get userId from object user's into in DB
+        //const userId =  existingUser._id.valueOf()
+        //body request
+        const request = {
+          password: hashedPassword,
+        };
+
+        Users.findByIdAndUpdate(userId, request, {
+          useFindAndModify: false,
+        }).then((data) => {
+          if (!data) {
+            return res.json(errorFunction(true, 404, "Bad request"));
+          } else {
+            res.status(200);
+            return res.json(
+              errorFunction(false, 200, "Updated user's password successfully!")
+            );
+          }
+        });
+      } else {
+        res.status(403);
+        return res.json(errorFunction(true, 403, "Password dose not match"));
+      }
+    }
+  } catch (error) {
+    return res.json(errorFunction(true, 400, "Bad Request"));
+  }
+};
+const forgotPassword = async (req, res) => {
+  try {
+    const existingUser = await Users.findOne({
+      email: req.body.email,
+    }).lean(true);
+    if (!existingUser) {
+      res.status(403);
+      return res.json(errorFunction(true, 403, "User does not exists"));
+    } else {
+      //random a new password
+      const randomPassword = Math.random().toString(36).slice(2, 10);
+      //get userId from object user's info
+      const userId = existingUser._id.valueOf();
+      //hash new password
+      const hashedPassword = await securePassword(randomPassword);
+      //body request
+      const request = {
+        password: hashedPassword,
+      };
+
+      Users.findByIdAndUpdate(userId, request, {
+        useFindAndModify: false,
+      }).then((data) => {
+        if (!data) {
+          return res.json(errorFunction(true, 404, "Bad request"));
+        } else {
+          const transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 465,
+            secure: true,
+            auth: {
+              user: "minh01294716049@gmail.com",
+              pass: "igyoazvegjcjjzdi",
+            },
+          });
+
+          const mailOptions = {
+            from: "tuantran432001@gmail.com",
+            to: req.body.email,
+            subject: "sending Email using Node.js",
+            text: "That was easy",
+            html:
+              "<p>This is an automation email from ShoesApp. Your password was updated.</b><ul><li>Username: " +
+              existingUser.username +
+              "</li><li>Email: " +
+              existingUser.email +
+              "</li><li>Password: " +
+              randomPassword +
+              "</li></ul>" +
+              "<p>Please change your password to protect your information.</p>",
+          };
+
+          transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+              console.log("error: ", error);
+            } else {
+              console.log("Email sent: " + info.response);
+            }
+          });
+          return res.json(
+            errorFunction(false, 200, "Updated user's password successfully")
+          );
+        }
+      });
+    }
+  } catch (error) {
+    console.log("avx", error);
+    res.json(errorFunction(true, 400, "Bad request"));
+  }
+};
 
 module.exports = {
   register,
@@ -276,4 +394,6 @@ module.exports = {
   deleteUserById,
   editUser,
   getUserById,
+  changePassword,
+  forgotPassword,
 };

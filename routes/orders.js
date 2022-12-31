@@ -22,7 +22,7 @@ route.delete(
   OrdersController.deleteOrderById
 );
 route.patch("/api/orders/editOrderById/:orderId", OrdersController.editOrder);
-route.delete(
+route.get(
   "/api/order/addMultipleOrders/:orderId",
   OrdersController.addMultipleOrders
 );
